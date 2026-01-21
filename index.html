@@ -1,0 +1,448 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>For Sabrina 💌</title>
+  <style>
+    :root{
+      --bg1:#f3fbf6;
+      --bg2:#e6f6ee;
+      --env:#9fe0c3;
+      --env-dark:#6fc2a0;
+      --paper:#fffefb;
+      --ink:#1f3d2b;
+      --shadow: rgba(0,0,0,.18);
+    }
+
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      min-height:100vh;
+      display:grid;
+      place-items:center;
+      background: radial-gradient(1200px 800px at 30% 20%, var(--bg2), var(--bg1));
+      font-family: ui-rounded, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      color:var(--ink);
+    }
+
+    .wrap{
+      width:min(520px, 92vw);
+      text-align:center;
+      padding:24px 14px 34px;
+    }
+
+    h1{
+      margin: 0 0 10px;
+      font-size: clamp(20px, 4.8vw, 30px);
+      letter-spacing:.2px;
+    }
+    .hint{
+      margin:0 0 18px;
+      opacity:.75;
+      font-size: 14px;
+    }
+
+    .stage{
+      position:relative;
+      min-height: 320px;
+      height: auto;
+      padding: 18px 0 10px;
+      display:grid;
+      place-items:center;
+    }
+
+    /* Envelope container (RESPONSIVE) */
+    .envelope{
+      position:relative;
+      width: min(360px, 92vw);
+      aspect-ratio: 360 / 230;
+      height: auto;
+
+      cursor:pointer;
+      border-radius: 16px;
+      touch-action: manipulation;
+      transform: translateZ(0);
+      filter: drop-shadow(0 18px 18px var(--shadow));
+      transition: transform .2s ease;
+      user-select:none;
+      outline:none;
+
+      perspective: 1000px;
+    }
+
+    .envelope:active{ transform: scale(.99); }
+
+    /* Back body */
+    .env-back{
+      position:absolute;
+      inset:0;
+      background: var(--env);
+      border-radius: 16px;
+      overflow:hidden;
+      z-index:0;
+    }
+
+    /* Bottom front triangle (still border-based, but scales okay) */
+    .env-front{
+      position:absolute;
+      inset:0;
+      border-radius: 16px;
+      overflow:hidden;
+      z-index:4;
+    }
+    .env-front:before{
+      content:"";
+      position:absolute;
+      left:0; right:0; bottom:0;
+      margin:auto;
+      width:0; height:0;
+
+      /* match original proportions at 360px width */
+      border-left: 180px solid transparent;
+      border-right:180px solid transparent;
+      border-top: 120px solid var(--env-dark);
+
+      transform: translateY(34px);
+    }
+
+    /* Side folds */
+    .fold-left, .fold-right{
+      position:absolute;
+      top:0; bottom:0;
+      width:0; height:0;
+      margin:auto 0;
+      border-top: 115px solid transparent;
+      border-bottom:115px solid transparent;
+      z-index:2;
+      opacity:.95;
+    }
+    .fold-left{
+      left:0;
+      border-right: 180px solid rgba(255,255,255,.22);
+      transform: translateX(2px);
+    }
+    .fold-right{
+      right:0;
+      border-left: 180px solid rgba(0,0,0,.06);
+      transform: translateX(-2px);
+    }
+
+    /* Pocket clips ONLY the letter */
+    .pocket{
+  position:absolute;
+  left: 6%;
+  right: 6%;
+  top: 12%;
+  bottom: 10%;
+  border-radius: 14px;
+
+  /* IMPORTANT: no clipping */
+  overflow: visible;
+
+  z-index: 1;
+  pointer-events:none;
+}
+.open .pocket{
+  z-index: 9;
+  pointer-events:auto;
+}
+
+    /* Paper (RESPONSIVE) */
+    .paper{
+  position:absolute;
+  width: 100%;
+  height: 100%;
+  left: 0;
+  top: 0;
+
+  background: var(--paper);
+  border-radius: 14px;
+  box-shadow: 0 16px 26px rgba(0,0,0,.16);
+  border: 1px solid rgba(0,0,0,.06);
+
+  /* push it down far enough that it’s not visible */
+  transform: translateY(120%);
+  opacity: 0;
+  pointer-events: none;
+
+  transition: transform .95s cubic-bezier(.2,.85,.2,1), opacity .25s ease;
+
+  padding: 18px 18px 14px;
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+
+  z-index: 1;
+}
+
+
+   .open .paper{
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(-18%);
+  z-index: 10;
+}
+
+
+    .paper .topline{
+      font-size: 14px;
+      opacity:.6;
+      text-align:left;
+    }
+
+    .paper .msg{
+      margin: 8px 0 0;
+      font-size: clamp(18px, 4.8vw, 22px);
+      line-height: 1.15;
+      letter-spacing:.2px;
+    }
+    .paper .msg strong{
+      display:inline-block;
+      margin-top:6px;
+      font-size: clamp(22px, 6vw, 28px);
+    }
+
+    .buttons{
+      display:flex;
+      gap:10px;
+      justify-content:center;
+      margin-top: 10px;
+      flex-wrap: wrap;
+    }
+
+    button{
+      border:0;
+      border-radius: 999px;
+      min-height: 44px; /* mobile-friendly */
+      padding: 12px 16px;
+      font-weight: 650;
+      cursor:pointer;
+      box-shadow: 0 10px 16px rgba(0,0,0,.10);
+      transition: transform .15s ease, filter .15s ease;
+      font-size:15px;
+    }
+    button:hover{ transform: translateY(-1px); filter: brightness(1.02); }
+    button:active{ transform: translateY(0px); filter: brightness(.98); }
+
+    .yes{
+      background: #3cb371;
+      color: white;
+    }
+    .no{
+      background: #dff3ea;
+      color: #1f3d2b;
+    }
+
+    /* Flap (FIX: remove pink border-bottom) */
+    .flap{
+      position:absolute;
+      left:0; top:0;
+      width:100%;
+      height:60%;
+      background: linear-gradient(#bfe8d4, #9fdcc1);
+      clip-path: polygon(0 0, 100% 0, 50% 100%);
+
+      transform-origin: top center;
+      transform: rotateX(0deg);
+      transition: transform .85s cubic-bezier(.2,.8,.2,1);
+
+      z-index:6;
+      border-top-left-radius: 16px;
+      border-top-right-radius: 16px;
+
+      backface-visibility: hidden;
+      will-change: transform;
+      transform-style: preserve-3d;
+    }
+
+    /* Little seal */
+    .seal{
+      position:absolute;
+      left:50%; top:54%;
+      transform: translate(-50%,-50%);
+      width:42px; height:42px;
+      border-radius:999px;
+      background: radial-gradient(circle at 30% 30%, #5fd3a6, #2fa77a);
+      z-index:7;
+      display:grid;
+      place-items:center;
+      color:white;
+      font-size:18px;
+      box-shadow: 0 10px 16px rgba(0,0,0,.18);
+      transition: opacity .25s ease, transform .25s ease;
+    }
+
+    /* Open state animations */
+    .open .flap{
+      transform: rotateX(-180deg);
+      z-index: 1;
+    }
+
+    .open .seal{
+      opacity:0;
+      transform: translate(-50%,-50%) scale(.9);
+      pointer-events:none;
+    }
+
+    /* Confetti hearts */
+    .hearts{
+      position:absolute;
+      inset:0;
+      pointer-events:none;
+      overflow:hidden;
+      z-index:10;
+    }
+    .heart{
+      position:absolute;
+      bottom:-20px;
+      font-size: 18px;
+      opacity:.9;
+      animation: floatUp 1.8s ease-in forwards;
+      filter: drop-shadow(0 8px 10px rgba(0,0,0,.12));
+    }
+    @keyframes floatUp{
+      0%{ transform: translateY(0) scale(1); opacity:0; }
+      10%{ opacity:1; }
+      100%{ transform: translateY(-420px) scale(1.35); opacity:0; }
+    }
+
+    .result{
+      margin-top: 14px;
+      min-height: 22px;
+      font-size: 15px;
+      opacity:.9;
+    }
+
+    /* Tiny screens: simplify folds so it still looks clean */
+    @media (max-width: 420px){
+      .fold-left, .fold-right{ display:none; }
+      /* optional: comment this out if you want the bottom triangle */
+      /* .env-front:before{ display:none; } */
+    }
+.env-back, .env-front{
+  overflow: visible;
+}
+
+.pocket{ z-index: 1; }
+.open .pocket{ z-index: 9; }
+
+
+/* --- FINAL FIX: stop envelope layers from clipping the letter when open --- */
+.open .env-back,
+.open .env-front{
+  overflow: visible !important;
+}
+
+/* ensure the paper can appear above the envelope body */
+.open .paper{
+  position: relative;
+}
+
+/* if the corners still look clipped, slightly raise it more */
+.open .paper{
+  transform: translateY(-22%) !important;
+}
+
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>💌 A little message for Sabrina</h1>
+    <p class="hint">Tap the envelope to open it.</p>
+
+    <div class="stage">
+      <div class="hearts" id="hearts"></div>
+
+      <div class="envelope" id="envelope" role="button" tabindex="0" aria-label="Open envelope">
+        <div class="pocket">
+          <div class="paper" id="paper" aria-live="polite">
+            <div class="topline">To: Sabrina</div>
+
+            <div>
+              <div class="msg">
+                I was wondering…
+                <br />
+                <strong>Will you be my Valentine? 💖</strong>
+              </div>
+
+              <div class="buttons">
+                <button class="yes" id="yesBtn" type="button">Yes! 💞</button>
+                <button class="no" id="noBtn" type="button">Not yet 🙈</button>
+              </div>
+            </div>
+
+            <div class="topline" style="text-align:right;">From: Ben</div>
+          </div>
+        </div>
+
+        <div class="env-back"></div>
+        <div class="env-front">
+          <div class="fold-left"></div>
+          <div class="fold-right"></div>
+        </div>
+
+        <div class="flap"></div>
+        <div class="seal">💚</div>
+      </div>
+    </div>
+
+    <div class="result" id="result"></div>
+  </div>
+
+  <script>
+    const envelope = document.getElementById("envelope");
+    const result = document.getElementById("result");
+    const hearts = document.getElementById("hearts");
+    const yesBtn = document.getElementById("yesBtn");
+    const noBtn = document.getElementById("noBtn");
+
+    function setOpen(isOpen){
+      envelope.classList.toggle("open", isOpen);
+    }
+
+    function burstHearts(count = 16){
+      const icons = ["💚","🍀","🌿","💖","💞"];
+      for(let i=0;i<count;i++){
+        const el = document.createElement("div");
+        el.className = "heart";
+        el.textContent = icons[Math.floor(Math.random()*icons.length)];
+        el.style.left = Math.random()*100 + "%";
+        el.style.animationDelay = (Math.random()*0.2) + "s";
+        el.style.fontSize = (14 + Math.random()*20) + "px";
+        hearts.appendChild(el);
+        el.addEventListener("animationend", () => el.remove());
+      }
+    }
+
+    function toggleOpen(){
+      const isOpen = envelope.classList.contains("open");
+      setOpen(!isOpen);
+      result.textContent = !isOpen ? "Take a deep breath… you’ve got this 😄" : "";
+    }
+
+    envelope.addEventListener("pointerdown", (e) => {
+      if (e.target.tagName.toLowerCase() === "button") return;
+      toggleOpen();
+    });
+
+    envelope.addEventListener("keydown", (e) => {
+      if(e.key === "Enter" || e.key === " "){
+        e.preventDefault();
+        toggleOpen();
+      }
+    });
+
+    yesBtn.addEventListener("click", () => {
+      setOpen(true);
+      burstHearts(22);
+      result.textContent = "YAY!! Screenshot this and send it to Sabrina 💚";
+    });
+
+    noBtn.addEventListener("click", () => {
+      setOpen(true);
+      result.textContent = "No pressure at all — the envelope will be here when you're ready 💚";
+    });
+  </script>
+</body>
+</html>
